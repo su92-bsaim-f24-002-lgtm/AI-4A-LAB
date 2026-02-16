@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Scraper Pro</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1>📧 Email Scraper Pro</h1>
+            </div>
+            <div class="nav-status">
+                <span id="status-indicator" class="status-idle">Ready</span>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="hero-section">
+                <h2>Extract Business Emails Effortlessly</h2>
+                <p>Professional email extraction tool with real-time progress tracking</p>
+            </div>
+
+            <div class="status-message" id="status-message" style="display: none;">
+                <p id="status"></p>
+            </div>
+
+            <div class="scraper-card">
+                <div class="card-header">
+                    <h3>Start New Extraction</h3>
+                </div>
+                <div class="card-body">
+                    <form id="scrapeForm" class="scraper-form">
+                        <div class="form-group">
+                            <label for="url">Target Website URL</label>
+                            <input type="url" id="url" name="url" placeholder="https://example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="pages">Maximum Pages to Scan</label>
+                            <input type="number" id="pages" name="pages" placeholder="10" min="1" max="100" required>
+                        </div>
+                        <button type="submit" class="btn-primary" id="start-btn">
+                            <span class="btn-text">Start Extraction</span>
+                            <div class="btn-loader" style="display: none;"></div>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="progress-card" id="progress-section" style="display: none;">
+                <div class="card-header">
+                    <h3>Extraction Progress</h3>
+                </div>
+                <div class="card-body">
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span id="progress-percent">0%</span>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Pages Scanned</div>
+                            <div class="stat-value" id="pages-scanned">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Emails Found</div>
+                            <div class="stat-value" id="emails-found">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Time Elapsed</div>
+                            <div class="stat-value" id="time-elapsed">00:00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="logs-card" id="logs-section" style="display: none;">
+                <div class="card-header">
+                    <h3>Activity Log</h3>
+                    <button class="btn-secondary" id="clear-logs">Clear</button>
+                </div>
+                <div class="card-body">
+                    <div class="log-container" id="log-container"></div>
+                </div>
+            </div>
+
+            <div class="results-card" id="results-section" style="display: none;">
+                <div class="card-header">
+                    <h3>Extracted Emails</h3>
+                    <div class="results-actions">
+                        <button class="btn-secondary" id="download-txt">Download TXT</button>
+                        <button class="btn-secondary" id="download-csv">Download CSV</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="emails-list" id="emails-list"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/wave.js"></script>
+</body>
+</html>
