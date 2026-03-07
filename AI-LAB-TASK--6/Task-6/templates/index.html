@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Face Profiling System</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Face Profiling System</h1>
+        <p class="subtitle">
+          Facial Feature Analysis &amp; MBTI Personality Profiling
+        </p>
+      </header>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="webcam">Webcam Capture</button>
+        <button class="tab" data-tab="upload">Upload Photo</button>
+      </div>
+
+      <!-- Webcam Tab -->
+      <section id="tab-webcam" class="tab-content active">
+        <div class="video-wrapper">
+          <video id="video" autoplay playsinline></video>
+          <canvas id="snapshot-canvas" style="display: none"></canvas>
+        </div>
+        <div class="controls">
+          <button id="btn-start-camera" class="btn btn-primary">
+            Start Camera
+          </button>
+          <button id="btn-capture" class="btn btn-secondary" disabled>
+            Capture Photo
+          </button>
+        </div>
+        <div id="preview-webcam" class="preview" style="display: none">
+          <img id="captured-image" alt="Captured photo" />
+        </div>
+      </section>
+
+      <!-- Upload Tab -->
+      <section id="tab-upload" class="tab-content">
+        <div id="drop-zone" class="drop-zone">
+          <p>Drag &amp; drop an image here, or click to browse</p>
+          <input type="file" id="file-input" accept="image/*" hidden />
+        </div>
+        <div id="preview-upload" class="preview" style="display: none">
+          <img id="uploaded-image" alt="Uploaded photo" />
+        </div>
+      </section>
+
+      <!-- Analyze Button -->
+      <div class="controls">
+        <button id="btn-analyze" class="btn btn-accent" disabled>
+          Analyze Face &amp; Profile
+        </button>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div id="loading" class="loading" style="display: none">
+        <div class="spinner"></div>
+        <p>Analyzing facial features…</p>
+      </div>
+
+      <!-- Results -->
+      <section id="results" style="display: none">
+        <h2>Results</h2>
+
+        <!-- Personality Card -->
+        <div class="card personality-card">
+          <h3 id="result-type"></h3>
+          <p id="result-description"></p>
+          <div class="dimensions" id="result-dimensions"></div>
+          <div class="confidence">
+            Confidence: <span id="result-confidence"></span>%
+          </div>
+        </div>
+
+        <!-- Strengths / Challenges -->
+        <div class="card-row">
+          <div class="card">
+            <h4>Strengths</h4>
+            <ul id="result-strengths"></ul>
+          </div>
+          <div class="card">
+            <h4>Challenges</h4>
+            <ul id="result-challenges"></ul>
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="card">
+          <h4>Recommendations</h4>
+          <ul id="result-recommendations"></ul>
+        </div>
+
+        <!-- Feature Summary -->
+        <div class="card">
+          <h4>Feature Summary</h4>
+          <div id="result-features" class="feature-grid"></div>
+        </div>
+
+        <!-- Measurements Table -->
+        <div class="card">
+          <h4>Detailed Measurements</h4>
+          <table id="result-measurements" class="measurements-table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/webcam.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </body>
+</html>
