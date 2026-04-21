@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>😂 Joke Generator</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(0,0,0,0.2);
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            width: 400px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        #joke {
+            font-size: 18px;
+            margin: 20px 0;
+            min-height: 60px;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            background: #ffcc00;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #ffaa00;
+            transform: scale(1.05);
+        }
+
+        .loader {
+            display: none;
+            margin: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>😂 Joke Generator</h1>
+
+    <p id="joke">Click below to get a joke</p>
+
+    <div class="loader" id="loader">Loading...</div>
+
+    <button onclick="getJoke()">Get Joke</button>
+</div>
+
+<script>
+function getJoke() {
+    document.getElementById("loader").style.display = "block";
+    document.getElementById("joke").innerText = "";
+
+    fetch('/get-joke')
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("joke").innerText = data.joke;
+    })
+    .catch(error => {
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("joke").innerText = "Error loading joke 😢";
+    });
+}
+</script>
+
+</body>
+</html>
