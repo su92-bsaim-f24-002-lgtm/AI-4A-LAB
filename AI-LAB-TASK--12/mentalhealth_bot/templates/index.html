@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MindEase — Mental Health Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── Reset & Base ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f1117;
+      --surface:   #171b26;
+      --card:      #1e2333;
+      --border:    #2a3047;
+      --teal:      #4ecdc4;
+      --teal-dim:  #2a9d95;
+      --lavender:  #a78bfa;
+      --green:     #6ee7b7;
+      --text:      #e8eaf6;
+      --muted:     #8892b0;
+      --radius:    16px;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* animated soft blobs in background */
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: .12;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::before {
+      width: 500px; height: 500px;
+      background: var(--teal);
+      top: -150px; left: -150px;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    body::after {
+      width: 400px; height: 400px;
+      background: var(--lavender);
+      bottom: -100px; right: -100px;
+      animation: drift 15s ease-in-out infinite alternate-reverse;
+    }
+    @keyframes drift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(60px, 40px) scale(1.1); }
+    }
+
+    /* ── Header ──────────────────────────────────── */
+    header {
+      position: relative; z-index: 10;
+      background: rgba(23,27,38,.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 28px;
+      display: flex; align-items: center; gap: 14px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.4);
+    }
+
+    .logo {
+      width: 46px; height: 46px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--teal), var(--lavender));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+      box-shadow: 0 0 18px rgba(78,205,196,.35);
+    }
+
+    .header-info h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem; color: var(--teal);
+    }
+    .header-info p { font-size: .75rem; color: var(--muted); margin-top: 1px; }
+
+    .status {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 7px;
+      font-size: .73rem; color: var(--muted);
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* ── Layout ──────────────────────────────────── */
+    .layout {
+      flex: 1; display: flex; overflow: hidden;
+      position: relative; z-index: 1;
+    }
+
+    /* ── Sidebar ─────────────────────────────────── */
+    aside {
+      width: 255px; flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 22px 14px;
+      display: flex; flex-direction: column; gap: 8px;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: .72rem; font-weight: 700;
+      color: var(--teal); letter-spacing: 1.2px;
+      text-transform: uppercase;
+      padding: 0 8px 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 4px;
+    }
+
+    .chip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 13px;
+      font-family: 'Nunito', sans-serif;
+      font-size: .78rem; color: var(--text);
+      cursor: pointer; text-align: left;
+      transition: border-color .2s, background .2s, transform .15s;
+      line-height: 1.4;
+    }
+    .chip:hover {
+      border-color: var(--teal-dim);
+      background: #232a3e;
+      transform: translateX(4px);
+    }
+    .chip .icon { margin-right: 6px; }
+
+    .divider {
+      height: 1px; background: var(--border);
+      margin: 6px 0;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 12px;
+      background: rgba(78,205,196,.06);
+      border: 1px solid rgba(78,205,196,.15);
+      border-radius: 12px;
+      font-size: .72rem; color: var(--muted);
+      line-height: 1.5;
+      text-align: center;
+    }
+    .sidebar-footer strong { color: var(--teal); display: block; margin-bottom: 4px; }
+
+    /* ── Chat area ───────────────────────────────── */
+    .chat-wrap {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    #messages {
+      flex: 1; overflow-y: auto;
+      padding: 28px 32px;
+      display: flex; flex-direction: column; gap: 20px;
+      scroll-behavior: smooth;
+    }
+    #messages::-webkit-scrollbar { width: 4px; }
+    #messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* ── Welcome ─────────────────────────────────── */
+    .welcome {
+      text-align: center; padding: 50px 20px;
+      animation: fadeUp .6s ease both;
+    }
+    .welcome-icon {
+      font-size: 4rem; margin-bottom: 18px;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)}
+    }
+    .welcome h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem; color: var(--teal); margin-bottom: 10px;
+    }
+    .welcome p { color: var(--muted); font-size: .9rem; max-width: 420px; margin: 0 auto 20px; }
+    .welcome-tags {
+      display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+    }
+    .tag {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 5px 14px;
+      font-size: .76rem; color: var(--muted);
+    }
+
+    /* ── Message bubbles ─────────────────────────── */
+    .msg {
+      display: flex; align-items: flex-start; gap: 11px;
+      animation: fadeUp .35s ease both; max-width: 860px;
+    }
+    @keyframes fadeUp {
+      from{opacity:0;transform:translateY(10px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+    .msg.bot  { align-self: flex-start; }
+
+    .avatar {
+      width: 36px; height: 36px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; flex-shrink: 0; margin-top: 2px;
+    }
+    .msg.user .avatar {
+      background: linear-gradient(135deg, #2d5a9e, #1e3a6e);
+      border: 1px solid #3a6bc0;
+    }
+    .msg.bot .avatar {
+      background: linear-gradient(135deg, var(--teal-dim), #1a7a74);
+      border: 1px solid var(--teal-dim);
+    }
+
+    .bubble-wrap { display: flex; flex-direction: column; gap: 6px; max-width: 680px; }
+
+    .bubble {
+      padding: 13px 17px; border-radius: var(--radius);
+      font-size: .87rem; line-height: 1.7;
+    }
+    .msg.user .bubble {
+      background: #1a2f52; border: 1px solid #2d4f88;
+      border-bottom-right-radius: 4px; color: #cfe2ff;
+    }
+    .msg.bot .bubble {
+      background: var(--card); border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+
+    /* matched Q badge */
+    .matched-q {
+      font-size: .73rem; color: var(--teal);
+      padding: 5px 12px;
+      background: rgba(78,205,196,.07);
+      border: 1px solid rgba(78,205,196,.2);
+      border-radius: 8px;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+
+    /* related section */
+    .related-wrap {
+      background: rgba(167,139,250,.05);
+      border: 1px solid rgba(167,139,250,.15);
+      border-radius: 12px; padding: 12px 14px;
+      margin-top: 4px;
+    }
+    .related-wrap h4 {
+      font-size: .72rem; color: var(--lavender);
+      text-transform: uppercase; letter-spacing: .8px;
+      margin-bottom: 8px;
+    }
+    .related-item {
+      font-size: .78rem; color: var(--muted);
+      padding: 6px 0; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: color .2s;
+      display: flex; align-items: flex-start; gap: 7px;
+    }
+    .related-item:last-child { border-bottom: none; }
+    .related-item:hover { color: var(--text); }
+    .related-item .ri { flex-shrink: 0; color: var(--lavender); margin-top: 1px; }
+
+    .timestamp {
+      font-size: .67rem; color: var(--muted); padding: 0 4px;
+    }
+    .msg.user .timestamp { text-align: right; }
+
+    /* ── Typing indicator ────────────────────────── */
+    .typing { display: flex; gap: 5px; padding: 14px 17px; }
+    .typing span {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--teal-dim);
+      animation: bounce .9s ease infinite;
+    }
+    .typing span:nth-child(2){animation-delay:.15s}
+    .typing span:nth-child(3){animation-delay:.3s}
+    @keyframes bounce{0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-8px)}}
+
+    /* ── Input bar ───────────────────────────────── */
+    .input-bar {
+      padding: 16px 24px;
+      background: rgba(23,27,38,.98);
+      border-top: 1px solid var(--border);
+      display: flex; gap: 10px; align-items: flex-end;
+    }
+
+    #userInput {
+      flex: 1; background: var(--card);
+      border: 1px solid var(--border); border-radius: 14px;
+      color: var(--text); font-family: 'Nunito', sans-serif;
+      font-size: .87rem; padding: 12px 16px;
+      resize: none; max-height: 120px; line-height: 1.5;
+      outline: none; transition: border-color .2s;
+    }
+    #userInput:focus { border-color: var(--teal-dim); }
+    #userInput::placeholder { color: var(--muted); }
+
+    #sendBtn {
+      width: 46px; height: 46px; border-radius: 14px;
+      border: none; background: linear-gradient(135deg, var(--teal), var(--teal-dim));
+      color: #0f1117; font-size: 19px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .15s, box-shadow .2s, opacity .2s;
+      flex-shrink: 0;
+    }
+    #sendBtn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(78,205,196,.4);
+    }
+    #sendBtn:disabled { opacity: .35; cursor: not-allowed; }
+
+    .hint {
+      font-size: .68rem; color: var(--muted);
+      text-align: center; padding: 0 24px 10px;
+    }
+
+    .error-bubble {
+      background: rgba(248,81,73,.1); border: 1px solid rgba(248,81,73,.3);
+      border-radius: 12px; padding: 11px 15px;
+      font-size: .83rem; color: #ff7b72;
+    }
+
+    /* ── Disclaimer banner ───────────────────────── */
+    .disclaimer {
+      padding: 8px 24px;
+      background: rgba(167,139,250,.06);
+      border-top: 1px solid rgba(167,139,250,.12);
+      font-size: .7rem; color: var(--muted);
+      text-align: center;
+    }
+    .disclaimer span { color: var(--lavender); }
+
+    /* ── Responsive ──────────────────────────────── */
+    @media(max-width:680px){
+      aside{display:none}
+      #messages{padding:16px}
+      .input-bar{padding:12px 16px}
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">🧠</div>
+  <div class="header-info">
+    <h1>MindEase Bot</h1>
+    <p>Mental Health QnA Assistant · MiniLM + FAISS Powered</p>
+  </div>
+  <div class="status"><div class="dot"></div> Online</div>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside>
+    <h2>💬 Try Asking</h2>
+
+    <div class="chip" onclick="sendQuick('What is mental health?')">
+      <span class="icon">🌱</span>What is mental health?
+    </div>
+    <div class="chip" onclick="sendQuick('What are signs of depression?')">
+      <span class="icon">😔</span>Signs of depression
+    </div>
+    <div class="chip" onclick="sendQuick('How can I manage anxiety?')">
+      <span class="icon">😰</span>Managing anxiety
+    </div>
+    <div class="chip" onclick="sendQuick('What are coping strategies?')">
+      <span class="icon">🛡️</span>Coping strategies
+    </div>
+    <div class="chip" onclick="sendQuick('How does exercise help mental health?')">
+      <span class="icon">🏃</span>Exercise & mental health
+    </div>
+    <div class="chip" onclick="sendQuick('What is mindfulness?')">
+      <span class="icon">🧘</span>What is mindfulness?
+    </div>
+    <div class="chip" onclick="sendQuick('How can I improve my sleep?')">
+      <span class="icon">😴</span>Better sleep tips
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="chip" onclick="sendQuick('What is cognitive behavioral therapy?')">
+      <span class="icon">💆</span>What is CBT?
+    </div>
+    <div class="chip" onclick="sendQuick('How do I deal with a panic attack?')">
+      <span class="icon">⚡</span>Panic attacks
+    </div>
+    <div class="chip" onclick="sendQuick('What is self-care and why is it important?')">
+      <span class="icon">💛</span>Self-care importance
+    </div>
+    <div class="chip" onclick="sendQuick('How does social media affect mental health?')">
+      <span class="icon">📱</span>Social media effects
+    </div>
+    <div class="chip" onclick="sendQuick('What are signs of burnout?')">
+      <span class="icon">🔥</span>Signs of burnout
+    </div>
+
+    <div class="sidebar-footer">
+      <strong>⚠️ Disclaimer</strong>
+      This bot provides general information only. For personal mental health concerns, please consult a licensed professional.
+    </div>
+  </aside>
+
+  <!-- CHAT -->
+  <div class="chat-wrap">
+    <div id="messages">
+      <div class="welcome" id="welcome-card">
+        <div class="welcome-icon">🧠</div>
+        <h2>MindEase Mental Health Bot</h2>
+        <p>Ask me anything about mental health — anxiety, depression, coping strategies, therapy, mindfulness, and more.</p>
+        <div class="welcome-tags">
+          <span class="tag">🤖 MiniLM Embeddings</span>
+          <span class="tag">⚡ FAISS Vector Search</span>
+          <span class="tag">🐍 Flask Backend</span>
+          <span class="tag">📊 80 QnA Pairs</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-bar">
+      <textarea id="userInput" rows="1"
+        placeholder="Ask a mental health question… e.g. How do I manage stress?"></textarea>
+      <button id="sendBtn" onclick="sendMessage()">➤</button>
+    </div>
+    <div class="hint">Press <kbd>Enter</kbd> to send &nbsp;·&nbsp; <kbd>Shift+Enter</kbd> for new line</div>
+    <div class="disclaimer">
+      <span>ℹ️ MindEase</span> uses semantic similarity search — not a replacement for professional mental health care.
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const msgEl   = document.getElementById('messages');
+  const inputEl = document.getElementById('userInput');
+  const btnEl   = document.getElementById('sendBtn');
+
+  // Auto-resize textarea
+  inputEl.addEventListener('input', () => {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+  });
+
+  inputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+
+  function now() {
+    return new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }
+
+  function removeWelcome() {
+    const w = document.getElementById('welcome-card');
+    if (w) w.remove();
+  }
+
+  function scrollDown() { msgEl.scrollTop = msgEl.scrollHeight; }
+
+  // ── Append user bubble ──
+  function appendUser(text) {
+    removeWelcome();
+    const div = document.createElement('div');
+    div.className = 'msg user';
+    div.innerHTML = `
+      <div class="avatar">👤</div>
+      <div class="bubble-wrap">
+        <div class="bubble">${escHtml(text)}</div>
+        <div class="timestamp">${now()}</div>
+      </div>`;
+    msgEl.appendChild(div);
+    scrollDown();
+  }
+
+  // ── Append bot response ──
+  function appendBot(data) {
+    const relatedHtml = data.related && data.related.length
+      ? `<div class="related-wrap">
+           <h4>🔗 Related Topics</h4>
+           ${data.related.map(r => `
+             <div class="related-item" onclick="sendQuick('${escAttr(r.question)}')">
+               <span class="ri">▸</span>
+               <span>${escHtml(r.question)}</span>
+             </div>`).join('')}
+         </div>` : '';
+
+    const div = document.createElement('div');
+    div.className = 'msg bot';
+    div.innerHTML = `
+      <div class="avatar">🧠</div>
+      <div class="bubble-wrap">
+        <div class="matched-q">🔍 Matched: <em>${escHtml(data.matched_q)}</em></div>
+        <div class="bubble">${formatText(data.answer)}</div>
+        ${relatedHtml}
+        <div class="timestamp">${now()} · distance: ${data.distance}</div>
+      </div>`;
+    msgEl.appendChild(div);
+    scrollDown();
+  }
+
+  function appendError(msg) {
+    removeWelcome();
+    const div = document.createElement('div');
+    div.className = 'msg bot';
+    div.innerHTML = `
+      <div class="avatar">🧠</div>
+      <div class="bubble-wrap">
+        <div class="error-bubble">⚠️ ${escHtml(msg)}</div>
+      </div>`;
+    msgEl.appendChild(div);
+    scrollDown();
+  }
+
+  function showTyping() {
+    const div = document.createElement('div');
+    div.id = 'typing'; div.className = 'msg bot';
+    div.innerHTML = `
+      <div class="avatar">🧠</div>
+      <div class="bubble" style="padding:0">
+        <div class="typing"><span></span><span></span><span></span></div>
+      </div>`;
+    msgEl.appendChild(div); scrollDown();
+  }
+
+  function hideTyping() {
+    const el = document.getElementById('typing');
+    if (el) el.remove();
+  }
+
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escAttr(s) { return String(s).replace(/'/g,"\\'"); }
+
+  function formatText(text) {
+    return escHtml(text)
+      .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\n/g,'<br>');
+  }
+
+  // ── Send message ──
+  async function sendMessage(msg) {
+    const text = (msg || inputEl.value).trim();
+    if (!text) return;
+
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+    btnEl.disabled = true;
+    appendUser(text);
+    showTyping();
+
+    try {
+      const res  = await fetch('/ask', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({query: text})
+      });
+      const data = await res.json();
+      hideTyping();
+
+      if (data.error) { appendError(data.error); }
+      else            { appendBot(data); }
+    } catch (err) {
+      hideTyping();
+      appendError('Cannot connect to Flask server. Make sure app.py is running on port 5000.');
+    } finally {
+      btnEl.disabled = false;
+      inputEl.focus();
+    }
+  }
+
+  function sendQuick(text) { sendMessage(text); }
+</script>
+</body>
+</html>
