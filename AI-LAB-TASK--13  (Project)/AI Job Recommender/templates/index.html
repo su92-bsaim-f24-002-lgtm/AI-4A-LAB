@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Job Recommender | Pakistan</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="hero">
+      <div class="container">
+        <div class="hero-text">
+          <span class="badge">🇵🇰 Pakistan Job Market</span>
+          <h1>Find Your <span class="highlight">Dream Job</span> with AI</h1>
+          <p>
+            Enter your skills and let our AI match you with the best
+            opportunities across Pakistan.
+          </p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-error">⚠️ {{ error }}</div>
+        {% endif %}
+
+        <div class="form-card">
+          <form action="/recommend" method="POST">
+            <div class="form-group">
+              <label for="skills">🛠️ Your Skills</label>
+              <input
+                type="text"
+                id="skills"
+                name="skills"
+                placeholder="e.g. Python, Machine Learning, Django, SQL"
+                required
+              />
+              <small>Separate skills with commas or spaces</small>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="experience">📅 Years of Experience</label>
+                <select id="experience" name="experience">
+                  <option value="0">Fresher (0 years)</option>
+                  <option value="1">1 Year</option>
+                  <option value="2">2 Years</option>
+                  <option value="3">3 Years</option>
+                  <option value="4">4+ Years</option>
+                  <option value="5">5+ Years</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="location">📍 Preferred City</label>
+                <select id="location" name="location">
+                  <option value="">Any City</option>
+                  <option value="Lahore">Lahore</option>
+                  <option value="Karachi">Karachi</option>
+                  <option value="Islamabad">Islamabad</option>
+                  <option value="Rawalpindi">Rawalpindi</option>
+                  <option value="Peshawar">Peshawar</option>
+                  <option value="Multan">Multan</option>
+                  <option value="Remote">Remote</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="job_type">💼 Job Type</label>
+                <select id="job_type" name="job_type">
+                  <option value="">Any Type</option>
+                  <option value="Full-time">Full-time</option>
+                  <option value="Part-time">Part-time</option>
+                  <option value="Remote">Remote</option>
+                  <option value="Contract">Contract</option>
+                  <option value="Internship">Internship</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary">🔍 Find My Jobs</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

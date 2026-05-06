@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Recommendations | AI Job Recommender</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="results-page">
+      <div class="container">
+        <div class="results-header">
+          <a href="/" class="back-btn">← Search Again</a>
+          <h2>Top Job Matches for You</h2>
+          <p>
+            Based on: <strong>{{ user_skills }}</strong> | {{ user_location or
+            'Any City' }} | {{ user_experience }} yrs exp
+          </p>
+        </div>
+
+        {% if jobs %}
+        <div class="jobs-grid">
+          {% for job in jobs %}
+          <div class="job-card">
+            <div class="job-header">
+              <div>
+                <h3 class="job-title">{{ job.title }}</h3>
+                <p class="company-name">🏢 {{ job.company }}</p>
+              </div>
+              <div class="match-badge">
+                <span class="score">{{ job.match_score }}%</span>
+                <small>Match</small>
+              </div>
+            </div>
+
+            <div class="job-meta">
+              <span>📍 {{ job.location }}</span>
+              <span>💼 {{ job.job_type }}</span>
+              <span>📅 {{ job.experience }}+ yrs</span>
+            </div>
+
+            <div class="salary-bar">
+              <span class="salary-label">💰 Salary Range</span>
+              <span class="salary-amount">
+                PKR {{ "{:,}".format(job.salary_min) }} – {{
+                "{:,}".format(job.salary_max) }}/month
+              </span>
+            </div>
+
+            <p class="job-desc">{{ job.description[:150] }}...</p>
+
+            <div class="skills-tags">
+              {% for skill in job.skills.split()[:5] %}
+              <span class="tag">{{ skill }}</span>
+              {% endfor %}
+            </div>
+
+            <a href="{{ job.apply_link }}" target="_blank" class="btn-apply">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zM9 17H6.5v-7H9v7zm-1.25-8.27a1.5 1.5 0 110-3 1.5 1.5 0 010 3zM18 17h-2.5v-3.5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5V17H10v-7h2.5v1.1A3.5 3.5 0 0118 14.5V17z"/></svg>
+  View on LinkedIn
+</a>
+          </div>
+          {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="no-results">
+          <h3>😕 No matching jobs found</h3>
+          <p>Try different skills or broaden your location preference.</p>
+          <a href="/" class="btn-primary">Try Again</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </body>
+</html>
